@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        {% if toast_message %}
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div id="liveToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ toast_message }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+                <div class="sidebar-sticky">
+                    <h2 class="text-white text-center py-3">Filters</h2>
+                    <form method="POST" class="px-3">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label text-white">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label text-white">End Date</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="min_total_amount" class="form-label text-white">Minimum Total Amount</label>
+                            <input type="number" name="min_total_amount" id="min_total_amount" class="form-control" step="0.01" min="0" placeholder="e.g., 1000">
+                        </div>
+                        <div class="mb-3">
+                            <label for="min_order_count" class="form-label text-white">Min Order Count</label>
+                            <select name="min_order_count" id="min_order_count" class="form-select">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                        <a href="{{ url_for('reset_filters') }}" class="btn btn-secondary w-100">Clear Filters</a>
+                    </form>
+                </div>
+            </nav>
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Main Dashboard</h1>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Total Revenue</h5>
+                                <p class="display-6">${{ total_revenue }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Unique Customers</h5>
+                                <p class="display-6">{{ unique_customers }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Total Orders</h5>
+                                <p class="display-6">{{ total_orders }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Top 10 Customers by Revenue</h5>
+                                {% if top_customers_img %}
+                                    <img src="data:image/png;base64,{{ top_customers_img }}" alt="Top Customers" class="img-fluid">
+                                {% else %}
+                                    <p>No data available to display.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Revenue Over Time</h5>
+                                {% if revenue_over_time_img %}
+                                    <img src="data:image/png;base64,{{ revenue_over_time_img }}" alt="Revenue Over Time" class="img-fluid">
+                                {% else %}
+                                    <p>No data available to display.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Filtered Orders Table</h5>
+                        <form method="POST" class="mb-3 d-flex justify-content-center">
+                            <div class="input-group search-bar">
+                                <input type="text" name="customer_name" class="form-control" placeholder="Search by Customer Name">
+                                <button type="submit" class="btn btn-outline-primary">Search</button>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Clear Search</a>
+                            </div>
+                        </form>
+                        <div class="table-responsive table-scrollable">
+                            {{ orders_table_html | safe }}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var toastEl = document.getElementById('liveToast');
+        if (toastEl) {
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    </script>
+</body>
+</html>
